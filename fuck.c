@@ -725,10 +725,10 @@ bool checkIfPlayerIsInBearingOffStage(board *gameBoard){
             printf("Press y to roll your dice to start bearing off your dice\n");
             char temp;
             scanf(" %c", &temp);
-            int result = singularDiceRoll() - 1;
+            int result = singularDiceRoll() + 17;
             printf("You rolled a %d\n", result);
-            int uBound = 5;
-            int lBound = 0;
+            int uBound = 23;
+            int lBound = 18;
             int indexOfPieceToBearOff = checkIfPlayerHasPieceInPip(-1, result, gameBoard);
             if (indexOfPieceToBearOff != -1){
                 setPieceToBearedOff(indexOfPieceToBearOff, result, gameBoard);
@@ -772,10 +772,13 @@ bool checkIfPlayerIsInBearingOffStage(board *gameBoard){
 void initiateWinInstance(board *gameBoard, int playerPieces[]){
     //first case: if a person has borne off all fifteen of his checkers and the opponent 
     // has borne off at least one checker ->  that person wins the current stake
+    printf("Player Pieces: %d, %d\n", playerPieces[0], playerPieces[1]);
+    printf("Stake: %d\n", gameBoard->stake);
     if (playerPieces[0] == 0 && playerPieces[1] > 0 && playerPieces[1] < 15){
         printf("Player 1 has won the game!\n");
         printf("Player 1 has won %d\n", gameBoard->stake);
-    }else if(playerPieces[1] == 0 && playerPieces[0] > 0 && playerPieces[1] < 15){
+    }else if(playerPieces[1] == 0 && playerPieces[0] > 0 && playerPieces[0] < 15){
+        printf("Went here\n");
         printf("Player 2 has won the game!\n");
         printf("Player 2 has won %d\n", gameBoard->stake);
     }
