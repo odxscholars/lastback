@@ -1,8 +1,15 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<unistd.h>
-#include<stdbool.h>
-#include<time.h>
+/*
+    Name:
+    Section:
+    Date:
+    Description:
+*/
+
+
+#include<stdio.h> // include the standard input/output library
+#include<stdlib.h> // include the standard library
+#include<stdbool.h> // include the standard boolean library
+#include<time.h> // include the time library
 #define EMPTY -50
 #define INBAR -100
 #define BEAREDOFF -200
@@ -13,43 +20,55 @@ inBar - "-100"
 bearedOff - "-200"
 */
 typedef struct checker{
-    bool isPlayerPiece;
-    int position;
-    bool bearedOff;
-    bool inBar;
-    bool isEmpty;
-}checker;
+    bool isPlayerPiece; //true if player, false if opponent
+    int position; //position on board
+    bool bearedOff; //true if beared off, false if not
+    bool inBar; //true if in bar, false if not
+    bool isEmpty; //true if empty, false if not
+}checker; //checker struct
 
 typedef struct pip{
-    int numCheckers;
-    checker checkersInPip[15];
+    int numCheckers; // number of checkers on pip
+    checker checkersInPip[15]; //array of checkers in pip
 } pip;
 
 
 typedef struct quadrant{
-    pip pips[6];
+    pip pips[6];//array of pips in quadrant
 } quadrant;
 
 
 typedef struct board{
-    quadrant quadrants[4];
-    bool player1turn;
-    int barCount;
-    checker playerBar[30];
-    int player1BearedOff;
-    int player2BearedOff;
-    int stake;
+    quadrant quadrants[4]; //array of quadrants on board
+    bool player1turn;//true if player 1's turn, false if player 2's turn
+    int barCount; //number of checkers in bar
+    checker playerBar[30]; //array of checkers in player's bar
+    int player1BearedOff; //number of checkers beared off for player 1
+    int player2BearedOff; //number of checkers beared off for player 2
+    int stake; //stake of game
     bool player1OwnerStake; //true if player1 owns stake
 } board;
 
 
+/*
+    This function rolls a singular dice and returns the value
+    @param none
+    @return int - value of dice roll
+    
+*/
 int singularDiceRoll(){
+    
     int diceRoll = rand() % 6 + 1;
     return diceRoll;
 
 }
 
 void doubleDiceRoll(int dice[]){
+    /*
+    This function rolls two dice and returns the values in an array
+    @param int dice[] - array to store dice values
+    @return void
+    */
     dice[0] = singularDiceRoll();
     dice[1] = singularDiceRoll();
     
@@ -57,12 +76,17 @@ void doubleDiceRoll(int dice[]){
 
 
 void initializeBoard(board *gameBoard){
+    /*
+    This function initializes the board
+    @param board *gameBoard - pointer to board struct
+    @return void
+    */
     gameBoard->stake = 64;
     gameBoard->barCount = 0;
     int pPositions[4] = {23,12,7,5};
     int oPositions[4] = {0, 11, 16, 18};
     int initQty[4] = {2, 5, 3, 5};
-    int count = 0;
+    
     //set everything to zero
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 6; j++){
@@ -109,6 +133,12 @@ void initializeBoard(board *gameBoard){
 
 
 int getMaxBetweenTwoQuadrants(quadrant a, quadrant b){
+    /*
+    This function returns the maximum number of checkers between two quadrants
+    @param quadrant a - first quadrant
+    @param quadrant b - second quadrant
+    @return int - maximum number of checkers between two quadrants
+    */
     int max = 0;
     for(int i = 0; i < 6; i++){
         if(a.pips[i].numCheckers > max){
@@ -122,17 +152,28 @@ int getMaxBetweenTwoQuadrants(quadrant a, quadrant b){
 
 }
 void changeTurn(board *gameBoard){
+    /*
+    This function changes the turn
+    @param board *gameBoard - pointer to board struct
+    @return void
+    */
+
     gameBoard->player1turn = !gameBoard->player1turn;
 
 }
 void displayGame(board * gameBoard){
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 6; j++){
-            for(int k = 0; k < gameBoard->quadrants[i].pips[j].numCheckers; k++){
-                printf("\nChecker %d: isPlayerPiece: %d, position: %d, bearedOff: %d, inBar: %d, isEmpty: %s, q: %d, p: %d", k, gameBoard->quadrants[i].pips[j].checkersInPip[k].isPlayerPiece, gameBoard->quadrants[i].pips[j].checkersInPip[k].position, gameBoard->quadrants[i].pips[j].checkersInPip[k].bearedOff, gameBoard->quadrants[i].pips[j].checkersInPip[k].inBar, gameBoard->quadrants[i].pips[j].checkersInPip[k].isEmpty ? "true" : "false", i, j);
-            }
-        }
-    }
+    /*
+    This function displays the game
+    @param board *gameBoard - pointer to board struct
+    @return void
+    */
+    // for(int i = 0; i < 4; i++){
+    //     for(int j = 0; j < 6; j++){
+    //         for(int k = 0; k < gameBoard->quadrants[i].pips[j].numCheckers; k++){
+    //             printf("\nChecker %d: isPlayerPiece: %d, position: %d, bearedOff: %d, inBar: %d, isEmpty: %s, q: %d, p: %d", k, gameBoard->quadrants[i].pips[j].checkersInPip[k].isPlayerPiece, gameBoard->quadrants[i].pips[j].checkersInPip[k].position, gameBoard->quadrants[i].pips[j].checkersInPip[k].bearedOff, gameBoard->quadrants[i].pips[j].checkersInPip[k].inBar, gameBoard->quadrants[i].pips[j].checkersInPip[k].isEmpty ? "true" : "false", i, j);
+    //         }
+    //     }
+    // }
     printf("\n");
     for(int i = 12; i < 24; i++ ){
         printf(" %d ", i);
@@ -179,6 +220,12 @@ void displayGame(board * gameBoard){
 }
 
 int checkIfPipIsOpen(int finalpos, board *gameBoard){
+    /*
+    This function checks if a pip is open
+    @param int finalpos - final position of checker
+    @param board *gameBoard - pointer to board struct
+    @return int - 1 if pip is open, 0 and positive numbers if not
+    */
     int count = 0;
     if (finalpos >= 0 && finalpos < 24){
         if (gameBoard->player1turn == true){
@@ -224,6 +271,13 @@ int checkIfPipIsOpen(int finalpos, board *gameBoard){
 
 }
 int checkIfPlayerHasPieceInPip(int indexToIgnore, int pos, board *gameBoard){
+    /*
+    This function checks if a player has a piece in a pip
+    @param int indexToIgnore - index of checker to ignore
+    @param int pos - position of pip
+    @param board *gameBoard - pointer to board struct
+    @return int - 1 if player has piece in pip, 0 if not
+    */
     if (gameBoard->player1turn== true){
         
         int q = pos / 6;
@@ -248,6 +302,13 @@ int checkIfPlayerHasPieceInPip(int indexToIgnore, int pos, board *gameBoard){
     }
 }
 void setPieceToEmpty(int checkerIndex, int pos, board *gameBoard){
+    /*
+    This function sets a piece to empty
+    @param int checkerIndex - index of checker to set to empty
+    @param int pos - position of pip
+    @param board *gameBoard - pointer to board struct
+    */
+
     int q = pos / 6;
     int p = pos % 6;
     gameBoard->quadrants[q].pips[p].checkersInPip[checkerIndex].isEmpty = true;
@@ -260,6 +321,13 @@ void setPieceToEmpty(int checkerIndex, int pos, board *gameBoard){
 
 }
 void setPieceToBearedOff(int checkerIndex, int pos, board *gameBoard){
+    /*
+    This function sets a piece to beared off
+    @param int checkerIndex - index of checker to set to beared off
+    @param int pos - position of pip
+    @param board *gameBoard - pointer to board struct
+    */
+
     int q = pos / 6;
     int p = pos % 6;
     gameBoard->quadrants[q].pips[p].checkersInPip[checkerIndex].isEmpty = true;
@@ -275,6 +343,12 @@ void setPieceToBearedOff(int checkerIndex, int pos, board *gameBoard){
 
 }
 void setPieceToFilled(int pos, board *gameBoard){
+    /*
+    This function sets a piece to filled
+    @param int pos - position of pip
+    @param board *gameBoard - pointer to board struct
+    */
+
     if (gameBoard->player1turn == true){
         int q = pos / 6;
         int p = pos % 6;
@@ -320,6 +394,13 @@ void setPieceToFilled(int pos, board *gameBoard){
     }
 }
 int getOpponentPiece(int posToGet, board *gameBoard){
+    /*
+    This function gets the index of the opponent piece in a pip
+    @param int posToGet - position of pip to get
+    @param board *gameBoard - pointer to board struct
+    @return int - index of opponent piece
+    */
+
     if (gameBoard->player1turn == true){
         int q = posToGet / 6;
         int p = posToGet % 6;
@@ -342,6 +423,13 @@ int getOpponentPiece(int posToGet, board *gameBoard){
 
 }
 void addPieceToBar(int finalPos, int indexOfOpp, board *gameBoard){
+    /*
+    This function adds a piece to the bar
+    @param int finalPos - position of pip
+    @param int indexOfOpp - index of opponent piece
+    @param board *gameBoard - pointer to board struct
+    */
+
     if(gameBoard->player1turn == true){
         int q = finalPos / 6;
         int p = finalPos % 6;
@@ -363,6 +451,13 @@ void addPieceToBar(int finalPos, int indexOfOpp, board *gameBoard){
 
 }
 void blotPiece(int finalPos, int oldPos, board *gameBoard){
+    /*
+    This function blots a piece
+    @param int finalPos - position of pip
+    @param int oldPos - position of pip
+    @param board *gameBoard - pointer to board struct
+    */
+
     if (gameBoard->player1turn == true){
         if (checkIfPipIsOpen(finalPos, gameBoard) == 1){
             int index = checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard);
@@ -387,18 +482,17 @@ void blotPiece(int finalPos, int oldPos, board *gameBoard){
 
 }
 void movePiece(int amtToMove, int oldPos, board *gameBoard){
+    /*
+    This function moves a piece
+    @param int amtToMove - amount to move
+    @param int oldPos - position of pip
+    @param board *gameBoard - pointer to board struct
     
+    */
     if (gameBoard->player1turn == true){
         int finalPos = oldPos - amtToMove;
         if (checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard) != -1){
             if (checkIfPipIsOpen(oldPos - amtToMove, gameBoard) == 0){
-                printf("editing pieces\n");
-                printf("finalPos: %d\n", finalPos);
-                printf("oldPos: %d\n", oldPos);
-                int q = oldPos / 6;
-                int p = oldPos % 6;
-                int q2 = (finalPos) / 6;
-                int p2 = (finalPos) % 6;
                 int checker = checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard);
                 
                 setPieceToEmpty(checker, oldPos, gameBoard);
@@ -421,10 +515,7 @@ void movePiece(int amtToMove, int oldPos, board *gameBoard){
                 printf("editing pieces\n");
                 printf("finalPos: %d\n", finalPos);
                 printf("oldPos: %d\n", oldPos);
-                int q = oldPos / 6;
-                int p = oldPos % 6;
-                int q2 = (finalPos) / 6;
-                int p2 = (finalPos) % 6;
+                
                 int checker = checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard);
                 
                 setPieceToEmpty(checker, oldPos, gameBoard);
@@ -443,6 +534,12 @@ void movePiece(int amtToMove, int oldPos, board *gameBoard){
 }
 
 void moveTwoPieces(board *gameBoard, int dice[2]){
+    /*
+    This function moves two pieces
+    @param board *gameBoard - pointer to board struct
+    @param int dice[2] - array of dice
+    */
+
     int piece1;
     int piece2;
     int choice;
@@ -469,6 +566,12 @@ void moveTwoPieces(board *gameBoard, int dice[2]){
 }
 
 void moveOnePieceFourTimes(board *gameBoard, int dice[2]){
+    /*
+    This function moves one piece four times
+    @param board *gameBoard - pointer to board struct
+    @param int dice[2] - array of dice
+    */
+
     int piecePosition;
     printf("What is the position of the piece that you want to move? ");
     scanf("%d", &piecePosition);
@@ -497,6 +600,12 @@ void moveOnePieceFourTimes(board *gameBoard, int dice[2]){
 
 }
 int barPromptIfTrue(board *gameBoard){
+    /*
+    This function prompts the user if they can move a piece from the bar
+    @param board *gameBoard - pointer to board struct
+    @return int - returns i if the user can move a piece from the bar, -1 if not
+    */
+
     if(gameBoard->barCount != 0){
         if (gameBoard->player1turn == true){
             for(int i = 0; i < gameBoard->barCount; i++){
@@ -520,6 +629,12 @@ int barPromptIfTrue(board *gameBoard){
 
 
 void shiftBar(int indexToRemove, board *gameBoard){
+    /*
+    This function shifts the bar
+    @param int indexToRemove - index to remove
+    @param board *gameBoard - pointer to board struct
+    */
+
     for(int i = indexToRemove; i < gameBoard->barCount; i++){
         gameBoard->playerBar[i] = gameBoard->playerBar[i + 1];
     }
@@ -527,6 +642,12 @@ void shiftBar(int indexToRemove, board *gameBoard){
 }
 
 void gameChoice(board *gameBoard, int dice[2]){
+    /*
+    This function prompts the user for a choice
+    @param board *gameBoard - pointer to board struct
+    @param int dice[2] - array of dice
+    */
+
     printf("barPrompt result: %d\n", barPromptIfTrue(gameBoard));
     if (barPromptIfTrue(gameBoard) != -1){
         char temp;
@@ -596,6 +717,11 @@ void gameChoice(board *gameBoard, int dice[2]){
 }
 
 void printBar(board *gameBoard){
+    /*
+    This function prints the bar
+    @param board *gameBoard - pointer to board struct
+    */
+
     printf("BAR: \n");
     for(int i = 0; i < gameBoard->barCount; i++){
         printf("Player %d\n", gameBoard->playerBar[i].isPlayerPiece ? 1 : 2);
@@ -603,6 +729,12 @@ void printBar(board *gameBoard){
 
 }
 void countPlayerPieces(board * gameBoard, int playerPiecs[]){
+    /*
+    This function counts the number of pieces each player has
+    @param board *gameBoard - pointer to board struct
+    @param int playerPieces[2] - array of player pieces
+    */
+
     int amt1 = 0;
     int amt2 = 0;
     for(int i = 0; i < 4; i++){
@@ -623,6 +755,12 @@ void countPlayerPieces(board * gameBoard, int playerPiecs[]){
 
 
 void printAmtPlayerPieces(board *gameBoard, int playerPieces[]){
+    /*
+    This function prints the amount of pieces each player has
+    @param board *gameBoard - pointer to board struct
+    @param int playerPieces[2] - array of player pieces
+    */
+
     countPlayerPieces(gameBoard, playerPieces);
     int amtPlayer1 = playerPieces[0];
     int amtPlayer2 = playerPieces[1];
@@ -650,6 +788,12 @@ void printAmtPlayerPieces(board *gameBoard, int playerPieces[]){
 }
 
 bool checkIfPlayerIsInBearingOffStage(board *gameBoard){
+    /*
+    This function checks if the player is in the bearing off stage
+    @param board *gameBoard - pointer to board struct
+    @return bool - true if player is in bearing off stage, false if not
+    */
+
     int playerPieces[2];
     countPlayerPieces(gameBoard, playerPieces);
     int amtInHomeBoard = 0;
@@ -770,6 +914,12 @@ bool checkIfPlayerIsInBearingOffStage(board *gameBoard){
 }
 
 void initiateWinInstance(board *gameBoard, int playerPieces[]){
+    /*
+    This function initiates a win instance
+    @param board *gameBoard - pointer to board struct
+    @param int playerPieces[] - array of player pieces
+    */
+
     //first case: if a person has borne off all fifteen of his checkers and the opponent 
     // has borne off at least one checker ->  that person wins the current stake
     printf("Player Pieces: %d, %d\n", playerPieces[0], playerPieces[1]);
@@ -803,6 +953,11 @@ void initiateWinInstance(board *gameBoard, int playerPieces[]){
     }
 }
 void driver(board* gameBoard){
+    /*
+    This function is the driver function for the game
+    @param board *gameBoard - pointer to board struct
+    */
+
     int playerPieces[2] = {0,0};
     int dice[2];
     bool continuePlaying = true;
