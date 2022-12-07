@@ -957,7 +957,13 @@ void driver(board* gameBoard){
     This function is the driver function for the game
     @param board *gameBoard - pointer to board struct
     */
-
+    bool debugMode = false;
+    printf("Debug mode? [Y]es or [N]o? \n");
+    char temp;
+    scanf(" %c", &temp);
+    if (temp == 'Y' || temp == 'y'){
+        debugMode = true;   
+    }
     int playerPieces[2] = {0,0};
     int dice[2];
     bool continuePlaying = true;
@@ -973,10 +979,16 @@ void driver(board* gameBoard){
             printf("Player %s's turn\n", gameBoard->player1turn ? "1" : "2");
             printf("Current stake: %d\n", gameBoard->stake);
             printf("Current Owner of stake: %s\n", gameBoard->player1OwnerStake ? "Player 1" : "Player 2");
-            printf("Dice[0]: ");
-            scanf("%d", &dice[0]);
-            printf("Dice[1]: ");
-            scanf("%d", &dice[1]);
+            if (debugMode == true){
+                printf("Dice[0]: ");
+                scanf("%d", &dice[0]);
+                printf("Dice[1]: ");
+                scanf("%d", &dice[1]);
+             
+            }else{
+                doubleDiceRoll(dice);
+            }
+            
             if(playerPieces[0] > 0 && playerPieces[1] > 0){
                 if(!checkIfPlayerIsInBearingOffStage(gameBoard)){
                     gameChoice(gameBoard, dice);
