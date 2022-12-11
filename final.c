@@ -579,33 +579,41 @@ void moveOnePieceFourTimes(board *gameBoard, int dice[2]){
     @param int dice[2] - array of dice
     */
 
-    int piecePosition;
+    int piecePosition; // variable to store the position of the piece to move
     printf("What is the position of the piece that you want to move? ");
     scanf("%d", &piecePosition);
+    // if it is player 1's turn
     if(gameBoard->player1turn == true){
+        // loop through the possible number of positions to move (4, 8, 12, or 16)
         for(int i = 4; i >= 1; i--){
+            // check if the pip that the piece would be moved to is open (does not have more than 1 checker of the same color)
             if (checkIfPipIsOpen(dice[0] * i, gameBoard) == 0){
                 printf("You are able to move %d positions\n", dice[0] * i);
+                // move the piece the maximum number of positions possible
                 movePiece(dice[0] * 4, piecePosition, gameBoard);
+                // exit the loop
                 i = 0;
-
             }
         }
-    }else{
+    }
+    // if it is player 2's turn
+    else{
+        // loop through the possible number of positions to move (4, 8, 12, or 16)
         for(int i = 4; i >= 1; i--){
+            // check if the pip that the piece would be moved to is open (does not have more than 1 checker of the same color)
             if (checkIfPipIsOpen(dice[0] * i, gameBoard) == 0){
                 printf("You are able to move %d positions\n", dice[0] * i);
+                // move the piece the maximum number of positions possible
                 movePiece(dice[0] * 4, piecePosition, gameBoard);
+                // exit the loop
                 i = 0;
 
             }
         }
 
     }
-    
-
-
-}
+   
+}   
 int barPromptIfTrue(board *gameBoard){
     /*
     This function prompts the user if they can move a piece from the bar
@@ -735,29 +743,37 @@ void printBar(board *gameBoard){
     }
 
 }
-void countPlayerPieces(board * gameBoard, int playerPiecs[]){
-    /*
+/*
     This function counts the number of pieces each player has
     @param board *gameBoard - pointer to board struct
     @param int playerPieces[2] - array of player pieces
-    */
+*/
+void countPlayerPieces(board * gameBoard, int playerPiecs[]){
+    // This function counts the number of pieces each player has
 
-    int amt1 = 0;
-    int amt2 = 0;
+    int amt1 = 0; // variable to store the number of pieces belonging to player 1
+    int amt2 = 0; // variable to store the number of pieces belonging to player 2
+
+    // loop through each quadrant on the board
     for(int i = 0; i < 4; i++){
+        // loop through each pip in the quadrant
         for(int j = 0; j < 6; j++){
+            // loop through each checker in the pip
             for(int k = 0; k < gameBoard->quadrants[i].pips[j].numCheckers; k++){
+                // if the checker belongs to player 1 and has not been beared off, increment the count of player 1's pieces
                 if (gameBoard->quadrants[i].pips[j].checkersInPip[k].isPlayerPiece == true && gameBoard->quadrants[i].pips[j].checkersInPip[k].bearedOff == false){
                     amt1++;
-                }else if (gameBoard->quadrants[i].pips[j].checkersInPip[k].isPlayerPiece == false && gameBoard->quadrants[i].pips[j].checkersInPip[k].bearedOff == false){
+                }
+                // if the checker belongs to player 2 and has not been beared off, increment the count of player 2's pieces
+                else if (gameBoard->quadrants[i].pips[j].checkersInPip[k].isPlayerPiece == false && gameBoard->quadrants[i].pips[j].checkersInPip[k].bearedOff == false){
                     amt2++;
                 }
             }
         }
     }
+    // store the number of pieces belonging to each player in the playerPiecs array
     playerPiecs[0] = amt1;
     playerPiecs[1] = amt2;
-
 }
 
 
