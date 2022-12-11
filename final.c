@@ -232,7 +232,7 @@ int checkIfPipIsOpen(int finalpos, board *gameBoard){
         
             int q = finalpos / 6;
             int p = finalpos % 6;
-            printf("q: %d, p: %d, numCheckers: %d\n", q, p, gameBoard->quadrants[q].pips[p].numCheckers);
+           
             if (gameBoard->quadrants[q].pips[p].numCheckers == 0){
                 return 0;
             }
@@ -278,28 +278,35 @@ int checkIfPlayerHasPieceInPip(int indexToIgnore, int pos, board *gameBoard){
     @param board *gameBoard - pointer to board struct
     @return int - the index of the piece if player has piece in pip, -1 if not
     */
+   bool continueLoop = true;
    if (pos >= 0 && pos < 24){
         if (gameBoard->player1turn== true){
             
             int q = pos / 6;
             int p = pos % 6;
-
-            printf("check pos: %d q: %d, p: %d\n", pos, q, p);
-            for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
+            int returnVal = -1;
+            
+            for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0 && continueLoop; i--){
                 if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == true && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty == false && i != indexToIgnore){
-                    return i;
+                    
+                    returnVal = i;
+                    continueLoop = false;
+                    
                 }
             }
-            return -1;
+            
+            return returnVal;
         }else{
             int q = pos / 6;
             int p = pos % 6;
-            for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
+            int returnVal = -1;
+            for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0  && continueLoop; i--){
                 if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty != true && i != indexToIgnore){
-                    return i;
+                    returnVal = i;
+                    continueLoop = false;
                 }
             }
-            return -1;
+            return returnVal;
         }
 
    }else {
@@ -408,25 +415,31 @@ int getOpponentPiece(int posToGet, board *gameBoard){
     @return int - index of opponent piece
     */
 
+   int returnValue = -1;
+   bool continueLoop = true;
     if (gameBoard->player1turn == true){
         int q = posToGet / 6;
         int p = posToGet % 6;
-        for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
+        for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0 && continueLoop; i--){
             if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty == false){
-                return i;
+                returnValue = i;
+                continueLoop = false;
             }
         }
-        return -1;
+        return returnValue;
     }else{
         int q = posToGet / 6;
         int p = posToGet % 6;
-        for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
+        for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0 && continueLoop; i--){
             if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == true && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty == false){
-                return i;
+                returnValue = i;
+                continueLoop = false;
+
             }
         }
-        return -1;
+        return returnValue;
     }
+    return returnValue;
 
 }
 void addPieceToBar(int finalPos, int indexOfOpp, board *gameBoard){
@@ -501,11 +514,13 @@ void movePiece(int amtToMove, int oldPos, board *gameBoard){
         if (checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard) != -1){
             if (checkIfPipIsOpen(oldPos - amtToMove, gameBoard) == 0){
                 int checker = checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard);
+               
                 
-                setPieceToEmpty(checker, oldPos, gameBoard);
                 setPieceToFilled(finalPos, gameBoard);
+                setPieceToEmpty(checker, oldPos, gameBoard);
                 
             }else if(checkIfPipIsOpen(oldPos - amtToMove, gameBoard) == 1){
+                
                 blotPiece(finalPos, oldPos, gameBoard);
             }
             else{
@@ -516,12 +531,11 @@ void movePiece(int amtToMove, int oldPos, board *gameBoard){
         }
     }else{
         int finalPos = oldPos + amtToMove;
-        printf("finalPos: %d\n", finalPos);
+        
         if (checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard) != -1){
             if (checkIfPipIsOpen(finalPos, gameBoard) == 0){
                 printf("editing pieces\n");
-                printf("finalPos: %d\n", finalPos);
-                printf("oldPos: %d\n", oldPos);
+                
                 
                 int checker = checkIfPlayerHasPieceInPip(-1, oldPos, gameBoard);
                 
@@ -587,7 +601,7 @@ void moveOnePieceFourTimes(board *gameBoard, int dice[2]){
         // loop through the possible number of positions to move (4, 8, 12, or 16)
         for(int i = 4; i >= 1; i--){
             // check if the pip that the piece would be moved to is open (does not have more than 1 checker of the same color)
-            if (checkIfPipIsOpen(dice[0] * i, gameBoard) == 0){
+            if (checkIfPipIsOpen(piecePosition - (dice[0] * i), gameBoard) == 0){
                 printf("You are able to move %d positions\n", dice[0] * i);
                 // move the piece the maximum number of positions possible
                 movePiece(dice[0] * 4, piecePosition, gameBoard);
@@ -601,7 +615,7 @@ void moveOnePieceFourTimes(board *gameBoard, int dice[2]){
         // loop through the possible number of positions to move (4, 8, 12, or 16)
         for(int i = 4; i >= 1; i--){
             // check if the pip that the piece would be moved to is open (does not have more than 1 checker of the same color)
-            if (checkIfPipIsOpen(dice[0] * i, gameBoard) == 0){
+            if (checkIfPipIsOpen(piecePosition + (dice[0] * i), gameBoard) == 0){
                 printf("You are able to move %d positions\n", dice[0] * i);
                 // move the piece the maximum number of positions possible
                 movePiece(dice[0] * 4, piecePosition, gameBoard);
@@ -620,25 +634,28 @@ int barPromptIfTrue(board *gameBoard){
     @param board *gameBoard - pointer to board struct
     @return int - returns i if the user can move a piece from the bar, -1 if not
     */
-
+    int returnValue = -1;
+    bool continueLoop = true;
     if(gameBoard->barCount != 0){
         if (gameBoard->player1turn == true){
-            for(int i = 0; i < gameBoard->barCount; i++){
+            for(int i = 0; i < gameBoard->barCount && continueLoop; i++){
                 if (gameBoard->playerBar[i].isPlayerPiece == true){
-                    return i;
+                    returnValue = i;
+                    continueLoop = false;
                 }
             }
         }else{
-            for(int i = 0; i < gameBoard->barCount; i++){
+            for(int i = 0; i < gameBoard->barCount && continueLoop; i++){
                 if (gameBoard->playerBar[i].isPlayerPiece == false){
-                    return i;
+                    returnValue = i;
+                    continueLoop = false;
                 }
             }
         }
     }else{
         return -1;
     }
-    return -1;
+    return  returnValue;
 
 }
 
@@ -663,7 +680,7 @@ void gameChoice(board *gameBoard, int dice[2]){
     @param int dice[2] - array of dice
     */
 
-    printf("barPrompt result: %d\n", barPromptIfTrue(gameBoard));
+    
     if (barPromptIfTrue(gameBoard) != -1){
         char temp;
         printf("Player %s, you have a checker in the bar\n", gameBoard->player1turn ? "1" : "2");
@@ -951,7 +968,7 @@ void initiateWinInstance(board *gameBoard, int playerPieces[]){
         printf("Player 1 has won the game!\n");
         printf("Player 1 has won %d\n", gameBoard->stake);
     }else if(playerPieces[1] == 0 && playerPieces[0] > 0 && playerPieces[0] < 15){
-        printf("Went here\n");
+        
         printf("Player 2 has won the game!\n");
         printf("Player 2 has won %d\n", gameBoard->stake);
     }
@@ -993,7 +1010,35 @@ bool getDiceInDebugMode(int dice[2]){
     return true;
 
 }
+void doubleStake(board *gameBoard){
+    /*
+    This function doubles the stake
+    @param board *gameBoard - pointer to board struct
+    */
+    gameBoard->stake *= 2;
+    printf("Stake has been doubled to %d\n", gameBoard->stake);
+    //change the owner of the stake to other playert
+    gameBoard->player1OwnerStake = !gameBoard->player1OwnerStake;
+}
 
+void initiateTurns(board * gameBoard){
+    printf("Press anything to start the dice roll\n");
+    char temp;
+    scanf(" %c", &temp);
+    int dice[2];
+    doubleDiceRoll(dice);
+    if (dice[0] > dice[1]){
+        printf("Player 1's turn\n");
+        gameBoard->player1turn = true;
+    }else if(dice[0] < dice[1]){
+        printf("Player 2's turn\n");
+        gameBoard->player1turn = false;
+    }else{
+        printf("Rolling dice again, you rolled the same result for both dice\n");
+        initiateTurns(gameBoard);
+    }
+
+}
 void driver(board* gameBoard){
     /*
     This function is the driver function for the game
@@ -1010,8 +1055,9 @@ void driver(board* gameBoard){
     int dice[2];
     bool continuePlaying = true;
     gameBoard->player1turn = true;
+    gameBoard->player1OwnerStake = true;
     initializeBoard(gameBoard);
-    
+    initiateTurns(gameBoard);
     do{
         countPlayerPieces(gameBoard, playerPieces);
         if(playerPieces[0] > 0 && playerPieces[1] > 0){
@@ -1021,6 +1067,18 @@ void driver(board* gameBoard){
             printf("Player %s's turn\n", gameBoard->player1turn ? "1" : "2");
             printf("Current stake: %d\n", gameBoard->stake);
             printf("Current Owner of stake: %s\n", gameBoard->player1OwnerStake ? "Player 1" : "Player 2");
+            if(gameBoard->player1OwnerStake == gameBoard->player1turn ){
+                printf("Do you want to double the stake? ");
+                char temp;
+                scanf(" %c", &temp);
+                if (temp == 'Y' || temp == 'y'){
+                    doubleStake(gameBoard);
+                }
+            }else{
+                printf("You cannot double the stake\n");
+            }
+            
+
             if (debugMode == true){
                 bool result;
                 do{
