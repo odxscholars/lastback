@@ -276,30 +276,37 @@ int checkIfPlayerHasPieceInPip(int indexToIgnore, int pos, board *gameBoard){
     @param int indexToIgnore - index of checker to ignore
     @param int pos - position of pip
     @param board *gameBoard - pointer to board struct
-    @return int - 1 if player has piece in pip, 0 if not
+    @return int - the index of the piece if player has piece in pip, -1 if not
     */
-    if (gameBoard->player1turn== true){
-        
-        int q = pos / 6;
-        int p = pos % 6;
+   if (pos >= 0 && pos < 24){
+        if (gameBoard->player1turn== true){
+            
+            int q = pos / 6;
+            int p = pos % 6;
 
-        printf("check pos: %d q: %d, p: %d\n", pos, q, p);
-        for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
-            if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == true && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty == false && i != indexToIgnore){
-                return i;
+            printf("check pos: %d q: %d, p: %d\n", pos, q, p);
+            for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
+                if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == true && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty == false && i != indexToIgnore){
+                    return i;
+                }
             }
-        }
-        return -1;
-    }else{
-        int q = pos / 6;
-        int p = pos % 6;
-        for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
-            if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty != true && i != indexToIgnore){
-                return i;
+            return -1;
+        }else{
+            int q = pos / 6;
+            int p = pos % 6;
+            for(int i = gameBoard->quadrants[q].pips[p].numCheckers; i >= 0; i--){
+                if(gameBoard->quadrants[q].pips[p].checkersInPip[i].isPlayerPiece == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].bearedOff == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].inBar == false && gameBoard->quadrants[q].pips[p].checkersInPip[i].isEmpty != true && i != indexToIgnore){
+                    return i;
+                }
             }
+            return -1;
         }
+
+   }else {
+        printf("This move is deemed out of bounds.\n");
         return -1;
-    }
+   }
+    
 }
 void setPieceToEmpty(int checkerIndex, int pos, board *gameBoard){
     /*
@@ -825,20 +832,20 @@ bool checkIfPlayerIsInBearingOffStage(board *gameBoard){
                 bool hitLower = false;
                 while(checkIfPlayerHasPieceInPip(-1, result, gameBoard) == -1 && (hitUpper == false || hitLower == false)){
                     if (result == uBound){
-                        printf("Hit upperBound\n");
+                        
                         hitUpper = true;
                     }else if (result == lBound){
-                        printf("Hit lowerBound\n");
+                        
                         hitLower = true;
                     }
                     if (hitUpper == false){
-                        printf("Incrementing result\n");
+                        
                         result++;
                     }else{
-                        printf("Decrementing result\n");
+                        
                         result--;
                     }
-                    printf("Checking %d....\n", result);
+                    
                     
                     if (checkIfPlayerHasPieceInPip(-1, result, gameBoard) != -1){
                         printf("Found a piece to bear off at %d\n", result);
@@ -952,6 +959,25 @@ void initiateWinInstance(board *gameBoard, int playerPieces[]){
         printf("Player 2 has won %d\n", gameBoard->stake * 3);
     }
 }
+
+/*
+    This function gets the dice in debug mode
+    @param int dice[] - array of dice
+*/
+bool getDiceInDebugMode(int dice[2]){
+    
+    printf("Dice[0]: ");
+    scanf("%d", &dice[0]);
+    printf("Dice[1]: ");
+    scanf("%d", &dice[1]);
+    if (dice[0] < 1 || dice[0] > 6 || dice[1] < 1 || dice[1] > 6){
+        printf("Invalid dice values\n");
+        return false;
+    }
+    return true;
+
+}
+
 void driver(board* gameBoard){
     /*
     This function is the driver function for the game
@@ -980,10 +1006,10 @@ void driver(board* gameBoard){
             printf("Current stake: %d\n", gameBoard->stake);
             printf("Current Owner of stake: %s\n", gameBoard->player1OwnerStake ? "Player 1" : "Player 2");
             if (debugMode == true){
-                printf("Dice[0]: ");
-                scanf("%d", &dice[0]);
-                printf("Dice[1]: ");
-                scanf("%d", &dice[1]);
+                bool result;
+                do{
+                    result = getDiceInDebugMode(dice);
+                }while(result == false);
              
             }else{
                 doubleDiceRoll(dice);
